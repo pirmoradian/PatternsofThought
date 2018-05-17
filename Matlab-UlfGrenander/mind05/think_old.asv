@@ -1,0 +1,7 @@
+function think
+%creates complete "thought" and displays 2-idea if there is one in thought
+[content,connector]=think1;
+hold on
+load c:\mind_data 
+%is there a 2-idea?
+ 

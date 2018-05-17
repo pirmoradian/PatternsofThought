@@ -1,0 +1,4 @@
+function val1=person1
+
+h=gco(pers1)
+val1=get(pers1,'Value')

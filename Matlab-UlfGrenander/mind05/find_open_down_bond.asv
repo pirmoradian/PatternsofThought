@@ -1,0 +1,40 @@
+function [i,h,omega,found]=find_open_down_bond(content,connector)
+%prepares for completing the given thought expressed as content,connectorn 
+%by searching for open down bond
+if isempty(content)
+    i=1;h=1;omega=1;found=0;not_found=1;
+    'EMPTY THOUGHT'
+    return
+end
+
+%find"down" open down-bonds
+load c:\mind_data
+n=length(content(:,1));found=0;
+   
+for i=1:n
+    h=content(i,1);g=content(i,2);mod=g_mod(g);
+    arity=mod_omegas(mod); 
+   if (arity >0) & (~isempty(connector))
+       m=length(connector(:,1));
+        for omega=1:arity
+            v=(connector(:,1)==h)&(connector(:,3)==omega);
+            if all(v==0)
+                found=1;
+                return
+            end
+        end
+   end 
+end   
+if isempty(connector)
+    omeg
+    for i=1:n
+        h=content(i,1);g=content(i,2);mod=g_mod(g);
+        arity=mod_omegas(mod);
+        if arity>0
+          found=1;
+         omega=1;
+        end
+        omega=1;
+     end
+end
+    

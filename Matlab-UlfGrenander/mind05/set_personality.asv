@@ -1,0 +1,8 @@
+function set_personality
+personality1
+waitfor
+personality2
+cd \mind05
+personality3
+cd \mind05
+personality4

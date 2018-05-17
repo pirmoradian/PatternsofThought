@@ -1,0 +1,718 @@
+function think
+%creates complete "thought" and displays 2-idea if there is one in thought
+%set seed forrandomness
+close all
+rand('state',sum(100*clock));
+
+c=menu('CHOOSE A MIND OPERATION','CONTINUOUS THOUGHT','THINKING DRIVEN BY THEME','THINKING DRIVEN BY EXTERNAL INPUTS',...
+    'FREE ASSOCIATIONS','SET PERSONALITY PROFILE','THE VISIBLE MIND','SEE CREATED IDEAS','DEVELOP');
+switch c
+    case 2
+[content,connector]=think1;
+hold on
+load('c:\mind_data') 
+%is there a 2-idea?
+cont=content(:,2);
+mods=g_mod(cont);
+gs= ismember(mods,180);
+if any(gs)
+    see_mind(content,connector)
+    pause
+    hold on
+    blinktxt(.6,.7,'NOTE ABSTRACT IDEA')
+    hold on
+    pause(4)
+    figure('Units','Normalized','Position',[0 0 1 1])
+    axis off
+    a=menu('ANALYZE IDEA ?','YES','NO')
+    if a==1
+        close all
+        ind=find(gs);idea_generator=cont(ind(1));idea_generator=G(idea_generator);
+        idea_name=idea_generator.name;
+        number=name_2_number(idea_name);
+        idea_content=CREATION{1,number,1};idea_connector=CREATION{1,number,2};
+        see_mind(idea_content,idea_connector)
+        pause
+        N=radix2num(idea_content(:,2),r)
+        text(.1,.7,['IDEA WITH GOEDEL NUMBER ',num2str(N)],'FontSize',30,'Color','b')
+        pause(5)
+    end
+    close all
+      b=menu('APPLY GENERALIZATION OPERATOR TO IDEA ?','YES','NO') %S
+  %S:  b=menu('APPLY ABSTRACTION OPERATOR TO IDEA ?','YES','NO') 
+    if b==1
+        see_mind_mod(idea_content,idea_connector)
+        pause(5)
+        pause
+        close
+    end
+end
+c=clock;c=rem(c(5),5);
+if c ==0
+    [Q,A]=memory(content,connector);
+    close all
+    clf
+figure('Units','Normalized','Position',[0 0 1 1])
+axis off
+text(.2, .2, ['STRENGTH OF MIND LINKAGES UPDATED'],'Fontsize',20','Color','b')
+pause(3)
+end
+close all
+
+
+case 1
+    load('C:\mind_data');
+    clf
+    figure('Units','Normalized','Position',[0 0 1 1])
+   %S: answer=menu('MORE CONTINUOUS THOUGHT ?', 'YES','NO');
+   %S: if answer==2
+   %S:     close
+   %S:     return
+   %S: end
+    duration=menu(['HOW MANY MINUTES OF CONTINUOUS THOUHT  ? '],'1','2','5','10');vec=[1 2 5 10];
+    duration=vec(duration)*60;
+    t0=clock;
+    [content,connector,Q_theme,genre]=think3;
+    genre_old=genre;
+    %is there a 2-idea?
+cont=content(:,2);
+mods=g_mod(cont);
+gs= ismember(mods,180);
+if any(gs)
+    see_mind(content,connector)
+    pause
+    hold on
+    blinktxt(.6,.7,'NOTE ABSTRACT IDEA')
+    hold on
+    pause(4)
+    figure('Units','Normalized','Position',[0 0 1 1])
+    axis off
+    a=menu('ANALYZE IDEA ?','YES','NO');
+    if a==1
+        close all
+        ind=find(gs);idea_generator=cont(ind(1));idea_generator=G(idea_generator);
+        idea_name=idea_generator.name;
+        number=name_2_number(idea_name);
+        idea_content=CREATION{1,number,1};idea_connector=CREATION{1,number,2};
+        see_mind(idea_content,idea_connector)
+        pause
+        N=radix2num(idea_content(:,2),r);
+        text(.1,.7,['IDEA WITH GOEDEL NUMBER ',num2str(N)],'FontSize',25,'Color','b')
+        pause(5)
+    end
+    %close all
+    figure('Units','Normalized','Position',[0 0 1 1])
+    b=menu('APPLY GENERALIZATION OPERATOR TO IDEA ?','YES','NO'); 
+    if b==1
+        see_mind_mod(idea_content,idea_connector)
+        pause(3)
+        pause
+        close
+    end
+end
+ 
+      while etime(clock,t0)<duration;
+          change=rand(1)<.3;
+           if change 
+            genre=select(ones(1,9)./9);
+           elseif ~change
+               genre=genre_old;
+           end
+           
+            if ~(genre==genre_old)
+                figure('Units','Normalized','Position',[0 0 1 1])
+                axis off
+                text(.1, .6,['MIND TRAJECTORY CHANGES DIRECTION TO THEME:'],'FontSize',20,'Color','y')
+                text(.4, .5,[THEMES_NAME(genre)],'FontSize',15,'Color','r')
+                pause
+                pause(1.6)            
+            else
+            end 
+         
+             [content,connector]=add_generator_up_Q(content,connector,genre);            
+             [content,connector]=delete_generator_connections_2(content,connector);
+             [content,connector]=add_generator_up_Q(content,connector,genre);
+             [content,connector]=delete_generator_connections_2(content,connector);             
+             %S:
+             see_mind(content,connector)
+             text(.2,.8,'Add & Delete generators and connections','Fontsize',15,'Color','y')
+             %S:
+             pause(1)
+             pause
+             %S: close all
+             w=[];
+             if isempty(content)
+             else
+             v=content(:,2);n_v=length(v);
+             k=1:n_v;
+             g=G(v(k));
+             w=[w,g.level];
+             if all(ismember(w,1))
+                  figure('Units','Normalized','Position',[0 0 1 1])
+                  text(.2,.1 ,['STOP THINKING!   NO OPEN BONDS!'],'Color','r','FontSize',20)
+                  axis off
+                  pause(1)
+             end
+             end
+             %is any down bond open?
+             found=1;
+             while found==1
+                [i,h,omega,found]=find_open_down_bond(content,connector);
+                if found==0
+                        see_mind(content,connector)
+                        pause
+                        pause(1)
+                        close all
+                        %return here?
+                 else
+                        [content,connector,found]=connect_down_bond(content,connector, i,h,omega,Q_theme);      
+                        see_mind(content,connector)
+                        text(.2,.8,'Connecting down bonds...','Fontsize',15,'Color','y')
+                        pause(1)
+                        pause
+                 end
+ 
+              end
+             % see_mind(content,connector);
+              %pause(1.6)
+              %pause
+              %close
+       [content,connector]=delete_generator_connections_2(content,connector);
+       [content,connector]=add_generator_up_Q(content,connector,genre);
+       [content,connector]=delete_generator_connections_2(content,connector);
+       see_mind(content,connector);
+       text(.2,.8,'Add & Delete generators and connections','Fontsize',15,'Color','y')
+       pause(1.6)
+       pause
+       [content,connector]=delete_generator_connections_2(content,connector);
+       [content,connector]=add_generator_up_Q(content,connector,genre);
+       text(.2,.8,'Add & Delete generators and connections','Fontsize',15,'Color','y')
+       %is any down bond open?
+             found=1;
+             while found==1
+                [i,h,omega,found]=find_open_down_bond(content,connector);
+                if found==0
+                        see_mind(content,connector)
+                        text(.2,.8,'Connecting down bonds...','Fontsize',15,'Color','y')
+                        pause
+                        pause(1)
+                        %close all
+                        %return here?
+                 else
+                        [content,connector,found]=connect_down_bond(content,connector, i,h,omega,Q_theme);      
+                        see_mind(content,connector)
+                        text(.2,.8,'Connecting down bonds...','Fontsize',15,'Color','y')
+                        pause
+                        pause(1)
+                 end
+ 
+              end
+       
+      
+           
+       
+        %see_mind(content,connector);
+        %pause
+        %pause(1.6)
+        [content,connector]=delete_generator_connections(content,connector);
+              pause(1.6)
+              see_mind(content,connector);
+              text(.2,.8,'Delete generators and connections','Fontsize',15,'Color','y')
+              %close
+              pause
+              [content,connector]=dom_thought(content,connector);
+              see_mind_dom(content,connector);
+              pause(3)  
+              pause
+              genre_old=genre;   
+              close all
+      end
+      
+      figure('Units','Normalized','Position',[0 0 1 1])
+      axis off
+      text(.3,.8,['TIME IS FINISHED'],'Color','r','FontSize',20)
+      text(.3,.7,['Creating new idea ...'],'Color','y','FontSize',15)
+      %now detect top_2ideas  
+    [top_2ideas_g,top_2ideas_h]=get_top_2ideas(content,connector); %these are the top_2ideas
+    n_ideas=length(top_2ideas_g); 
+    ns=zeros(1,n_ideas);
+    if n_ideas ==0
+        figure('Units','Normalized','Position',[0 0 1 1])
+        axis off
+        text(.2,.8,'No Conscious Thought','FontSize',32) 
+        pause(1)
+        close
+        return
+    end
+    
+    for t=1:n_ideas
+         gs=top_2ideas_g{1,t,:}; ns(t)=length(gs);
+    end
+    [Y,I]=max(ns);
+    m=I(1); 
+    hs=top_2ideas_h{1,m,:};gs=top_2ideas_g{1,m,:};
+    content1(:,1)=hs';content1(:,2)=gs';n=length(hs);connector1=[];
+    for k1=1:n
+        for k2=1:n
+            for j=1:3
+                h1=hs(k1);h2=hs(k2);g1=gs(k1);g2=gs(k2);
+            segment=(connector(:,1)==h1)&(connector(:,2)==h2)&(connector(:,3)==j);
+                    if any(segment)&(g1~=g2)
+                        connector1=[connector1;[h1,h2,j]];
+                        else
+                    end                      
+             end
+        end
+    end
+    %add new idea to "G"
+    r=length(G);n_new_ideas=length(gs_in_mod{180});%note numbering of "new ideas " modality
+    G(r+1).name=['<idea',num2str(n_new_ideas+1),'>'];
+    G(r+1).level=1;
+    G(r+1).modality=180;
+    gs_in_mod{180}=[gs_in_mod{180} r+1];
+g_mod=[g_mod,180];x=size(CREATION);
+    n_new_idea=x(2);  
+    CREATION{1,n_new_idea+1,1}=content1;
+    CREATION{1,n_new_idea+1,2}=connector1;   
+    Q=[Q,1];A_new=zeros(r+1);A_new(1:r,1:r)=A;A_new(r+1,:)=ones(1,r+1);A_new(:,r+1)=ones(r+1,1);A=A_new;
+    figure('Units','Normalized','Position',[0 0 1 1])
+    axis off
+    text(.2,.8,['New Idea Created: ! ',G(r+1).name],'FontSize',32) 
+    %text(.5,.1,['Press Enter to Continue'],'FontSize',20)
+    %pause
+    [L1,L2,L3,L4]=get_levels(G);
+    clear content connector omega genre theme
+    clear content1 connector1
+    save c:\mind_data 
+    close all
+
+
+
+case 3
+    %get input from external world:
+%carries out inference from inputted thought
+load('c:\mind_data')
+external_world=sensory; %S: external_world = All generators sellected 
+if isempty(external_world{1,1})
+    return;
+end
+l_external=length(external_world);connector=[];content=[];
+%now start to build internal MIND as configuration
+content_col2=[];connector1=[];l=0;
+for nu=1:l_external
+   sub=external_world{nu};
+   l_sub=length(sub(:,1));content1=zeros(l_sub,2);connector1=[];
+   content1(:,1)=[l+1:l+l_sub]';content1(:,2)=sub(:,2);
+   [content1,connector1]=add_connector_new(content1,connector1); 
+   connector=[connector;connector1];
+   content_col2=[content_col2,sub(:,2)'];
+   l=l+l_sub;
+end
+   l_scene=length(content_col2);
+   content=zeros(l_scene,2);content(:,1)=[1:l_scene]';content(:,2)=content_col2';
+   see_mind(content,connector)
+   %print -dbitmap 'c:\mind_figures\mind_fig1'
+   pause(3)
+   pause
+  %S: close
+   v=content(:,2);n_v=length(v);w=[];
+for k=1:n_v
+g=G(v(k));
+w=[w,g.level]
+end
+if all(ismember(w,1))
+    figure('Units','Normalized','Position',[0 0 1 1])
+    text(.4,.1 ,['STOP THINKING!  NO OPEN BONDS!'],'Color','r','FontSize',30)
+    axis off
+    pause(1)
+    close
+    return
+end
+
+   figure('Units','Normalized','Position',[0 0 1 1])
+   axis off
+   text(0,.5,['Input complete. Now wait...'],'FontSize',22)
+   pause(1)
+   close all
+for iter=1:3
+   [content,connector]=add_generator_up(content,connector);
+   [content,connector]=add_generator_down(content,connector);
+end
+see_mind(content,connector)
+text(.2,.8,'Some generators added','Fontsize',15,'Color','y')            
+pause
+%is any down bond open?
+found=1;
+while found==1
+    [i,h,omega,found]=find_open_down_bond(content,connector);
+    if found==0
+            see_mind(content,connector)
+            pause
+            pause(1)
+            close all
+            %return
+    elseif found==1
+       Q(gs)=20;Q_theme=Q;
+       [content,connector,found]=connect_down_bond(content,connector, i,h,omega,Q_theme);      
+       see_mind(content,connector)
+       text(.2,.8,'Connecting down bonds...','Fontsize',15,'Color','y')
+       pause
+       pause(1)
+    end 
+end
+
+see_mind_infer(content,connector)
+pause
+   close all
+   [Q,A]=memory(content,connector);
+   figure('Units','Normalized','Position',[0 0 1 1])
+axis off
+text(.1, .5, ['MIND LINKAGES UPDATED: FORGET AND REMEMBER'],'Fontsize',20','Color','b')
+pause(2)
+close all
+
+
+case 4
+    %free associations
+figure('Units','Normalized','Position',[0 0 1 1])
+   load('C:\mind_data');
+   text(.2,.5,['WAIT...'],'FontSize',32)
+   axis off
+   pause(1);content=[],connector=[];
+   n_input=0;
+   sto=1;
+   while sto==1
+   for iter=1:3
+      [content,connector]=add_generator_new(content,connector);
+   end
+   see_mind(content,connector)
+   text(.3,.8,'CHAOTIC THINKING...','Fontsize',20,'Color','y')
+   text(.3,.7,'new generators added','Fontsize',15,'Color','g')
+pause(1)
+pause
+%S: close
+for iter=1:4
+   [content,connector]=add_generator_up(content,connector);
+   [content,connector]=add_generator_down(content,connector);  
+see_mind(content,connector)
+text(.3,.8,'CHAOTIC THINKING...','Fontsize',20,'Color','y')
+text(.3,.7,'new up & down generators added','Fontsize',15,'Color','g')
+pause(1)
+pause
+end
+for iter=1:2
+[content,connector]=delete_generator_connections(content,connector);
+end
+see_mind(content,connector)
+text(.3,.8,'CHAOTIC THINKING...','Fontsize',20,'Color','y')
+text(.3,.7,'Generators and connections deleted','Fontsize',15,'Color','g')
+%pause(1)
+%S: close
+[content,connector]=see_mind_dom(content,connector)
+pause
+%print -dbitmap 'c:\mind_figures\mind_fig1'
+hold on
+%text(.2,.05,'Press ENTER to continue', 'FontSize',12)
+hold off
+pause(3)
+%S: close all 
+   figure('Units','Normalized','Position',[0 0 1 1])
+   axis off
+   q=menu('CONCENTRATED THOUGHT ? HARD THINKING, TAKES TIME...WAIT...', 'YES','NO');
+if q==1
+  [content,connector]=add_connector_new(content,connector) %note;
+   see_mind(content,connector)
+   %print -dbitmap 'c:\mind_figures\mind_fig2'
+   hold on
+%text(.2,.05,'Press ENTER to continue', 'FontSize',12)
+pause(2)
+pause
+close
+end
+   figure('Units','Normalized','Position',[0 0 1 1])
+   axis off
+   p=menu('CONTINUE WITH FREE ASSOCIATIONS ?', 'YES','NO');
+   if p==2
+       sto=2;   
+  see_mind(content,connector)
+  pause
+  hold on
+%text(.2,.05,'Press ENTER to continue', 'FontSize',12)
+hold off
+pause(5)
+close all
+    end 
+end  
+[Q,A]=memory(content,connector);
+figure('Units','Normalized','Position',[0 0 1 1])
+axis off
+text(.1, .5, ['MIND LINKAGES UPDATED: FORGET AND REMEMBER'],'Fontsize',20','Color','b')
+pause(2)
+close all
+
+case 5
+    [val1,val2,val3,val4]=set_personality_new
+    
+
+    load c:\mind_data 
+    %personality_behavior are sets of g's 
+    r=length(G);
+for g=1:r
+    if strcmp(G(g).name,'self')
+        sel=g;
+    end
+    if strcmp(G(g).name,'stingy')
+        stingy=g;
+    end
+    if strcmp(G(g).name,'generous')& G(g).modality==142  % there are 2 generous with TYPE & MOOD modality! 
+        generous=g;
+    end
+    if strcmp(G(g).name,'extrovert')
+        extrovert=g;
+    end
+    if strcmp(G(g).name,'introvert')
+        introvert=g;
+    end
+    if strcmp(G(g).name,'aggressive')
+        aggressive=g;
+    end
+    if strcmp(G(g).name,'meek')
+        meek=g;
+    end
+    if strcmp(G(g).name,'egotistical')
+        egotistical=g;
+    end
+    if strcmp(G(g).name,'coy')
+        coy=g;
+    end
+    if strcmp(G(g).name,'proud')
+        proud=g;
+    end
+end
+    A(generous,sel)=(1-val1)*3;
+    A(stingy,sel)=val1*3;
+     A(introvert,sel)=(1-val2)*3;
+    A(extrovert,sel)=val2*3;
+     A(meek,sel)=(1-val3)*3;
+    A(aggressive,sel)=val3*3;
+     A(egotistical,sel)=(val4)*3;
+    A(coy,sel)=(1-val5)*3;
+    A(proud,sel)=val5*3;
+    
+    %symmetrize
+    A=(A+A')./2;
+    save c:\mind_data
+    figure('Units','Normalized','Position',[0 0 1 1])
+    axis off
+    text(.1,1,'STRENGTH OF MIND LINKAGES SET TO: ','Color','y','Fontsize',28)
+    text(.1,.9,['stingy: ',num2str(val1*3)],'Color','y','Fontsize',28)
+     text(.1,.8,['generous: ',num2str((1-val1)*3)],'Color','y','Fontsize',28)
+     text(.1,.7,['introvert: ',num2str((1-val2)*3)],'Color','y','Fontsize',28) 
+      text(.1,.6,['extrovert: ',num2str(val2*3)],'Color','y','Fontsize',28)
+      text(.1,.5,['aggressive: ',num2str(val3*3)],'Color','y','Fontsize',28)
+      text(.1,.4,['meek: ',num2str((1-val3)*3)],'Color','y','Fontsize',28)
+      text(.1,.3,['egotistical: ',num2str(val4*3)],'Color','y','Fontsize',28)
+      text(.1,.2,['proud: ',num2str(val5*3)],'Color','y','Fontsize',28)     
+      text(.1,.1,['coy: ',num2str((1-val5)*3)],'Color','y','Fontsize',28)     
+    pause(7)
+    
+    case 6
+        %display "A" linkages
+        load('c:\mind_data')
+        angles=2*pi.*[0:r-1]./r;
+        xs=cos(angles);ys=sin(angles);
+        figure('Units','Normalized','Position',[0 0 1 1])
+        axis off
+        text(.3,.8, 'VISIBLE MIND','Fontsize', 25,'Color','r')
+        text(.3,.6, 'LOCATION OF "SELF" INDICATED BY *','Fontsize', 25,'Color','r')
+        text(.3,.4, 'WAIT !','Fontsize', 25,'Color','r')
+        text(.3,.2, 'TAKES A WHILE...','Fontsize', 25,'Color','r')
+        pause(3)
+        close all
+        clf
+        figure('Units','Normalized','Position',[0 0 1 1])
+        text(-1.5,1.1,'SITES OF ELEMENTARY IDEAS ON THE CIRCUMFERENCE','Fontsize', 25,'Color','r')
+        hold on
+        
+        for g1=1:5:r-1
+           for g2=g1+1:5:r
+            if (A(g1,g2)>.5)
+                plot([xs(g1),xs(g2)],[ys(g1),ys(g2)])
+                pause(.00000001)
+                axis off
+                axis equal
+                hold on
+            end
+               
+        end
+           %find "self"
+           g1
+        end
+        for g=1:r
+           if strcmp(G(g).name,'self')
+              sel=g;
+        end
+        end 
+        hold on
+        plot(xs(sel),ys(sel),'*r') 
+        pause(10)
+        
+        
+          
+
+
+   case 7
+       load c:\mind_data
+    figure('Units','Normalized','Position',[0 0 1 1])
+    axis off
+  %S:  clf
+    text(.1,.9,'NUMBRER OF CREATED IDEAS :','FontSize',26)
+    siz=size(CREATION);
+    axis off
+    text(.1, .8,num2str(siz(2)),'FontSize',26)
+    %text(.1,.6,'Select <idea> number','FontSize',26)
+    pause(2)
+    axis off
+   hold on
+    number=inputdlg('Enter <idea> number ')
+    number=str2double(number)
+    hold off
+    content2=CREATION{1,number,1};connector2=CREATION{1,number,2};
+    %content=content2
+    %connector=connector2
+    %see_mind_new(content2,connector2,number)
+   
+    idea_content=CREATION{1,number,1};idea_connector=CREATION{1,number,2};
+    see_mind_idea(idea_content,idea_connector)
+    pause(3)
+    
+    see_mind_mod(idea_content,idea_connector)
+    N=radix2num(idea_content(:,2),r)
+        text(.1,.7,['IDEA WITH GOEDEL NUMBER ',num2str(N)],'FontSize',28,'Color','y')
+     %S   print -dbitmap 'c:\ide2.bmp'
+        pause(5)
+        close all
+      
+ 
+    case 8
+        load('C:\mind_data');
+        A_old=A;
+        close all
+    clf    
+    duration=menu(['HOW MANY HOURS OF DEVELOPMENT  ? '],'1','2','3','4');
+    duration=duration*12;%change 12 to 3600
+    t0=clock;genre_old=1;
+      while etime(clock,t0)<duration  
+%            genre=select(ones(1,9)./9);       
+            
+             content=[];
+             %create thought germ "content,connector"
+             [content,connector,genre]=think2;
+             [content,connector]=add_generator_up_Q(content,connector,genre);
+             [content,connector]=add_generator_up_Q(content,connector,genre);
+             w=[];
+             if isempty(content)
+                
+             else
+             v=content(:,2);n_v=length(v);
+             k=1:n_v;
+             g=G(v(k));
+             w=[w,g.level];
+             if all(ismember(w,1))
+                 
+             end
+             end
+             %is any down bond open?
+              found=1;
+             while found==1
+                [i,h,omega,found]=find_open_down_bond(content,connector);
+                if found==0
+                 else
+                        [content,connector,found]=connect_down_bond(content,connector, i,h,omega,Q_theme);      
+                 end
+ 
+             end
+              close
+        [content,connector]=add_generator_up_Q(content,connector,genre);
+       [content,connector]=add_generator_up_Q(content,connector,genre);      
+          genre_old=genre; 
+          [Q,A]=memory(content,connector);
+          figure('Units','Normalized','Position',[0 0 1 1])
+        axis off
+        text(.1, .5, ['MIND LINKAGES UPDATED: FORGET AND REMEMBER'],'Fontsize',20','Color','b')
+        pause(2)
+   end
+     figure('Units','Normalized','Position',[0 0 1 1])
+        axis off
+        text(.3,.8, 'Duration timed out!','Fontsize', 25,'Color','y')
+        pause(1)
+        close all
+    clear content connector omega genre theme
+    clear content1 connector1
+    save c:\mind_data 
+    A_new=A;
+     angles=2*pi.*[0:r-1]./r;
+        xs=cos(angles);ys=sin(angles);
+         figure('Units','Normalized','Position',[0 0 1 1]);
+    subplot(1,2,1);
+    axis off
+    text(-1.5,1.1,'BEFORE...','Fontsize', 25,'Color','r');
+   
+       
+        hold on
+        for g1=1:5:r-1
+           for g2=g1+1:5:r
+            if (A_old(g1,g2)>.5)
+                plot([xs(g1),xs(g2)],[ys(g1),ys(g2)])
+                pause(.00000001)
+                axis off
+                axis equal
+                hold on
+            end
+           end
+           %find "self"
+        end
+        for g=1:r
+           if strcmp(G(g).name,'self')
+              sel=g;
+        end
+        end 
+        hold on
+        plot(xs(sel),ys(sel),'*r') 
+        
+         subplot(1,2,2);
+         axis off
+         text(-1.5,1.1,'...AND AFTER','Fontsize', 25,'Color','r')
+         %figure('Units','Normalized','Position',[0 0 1 1])
+        
+        hold on
+        for g1=1:5:r-1
+           for g2=g1+1:5:r
+            if (A_new(g1,g2)>.5)
+                plot([xs(g1),xs(g2)],[ys(g1),ys(g2)])
+                pause(.00000001)
+                axis off
+                axis equal
+                hold on
+            end
+           end
+           %find "self"
+        end
+        for g=1:r
+           if strcmp(G(g).name,'self')
+              sel=g;
+        end
+        end 
+        hold on
+        plot(xs(sel),ys(sel),'*r')
+        
+        pause(10)
+    
+    
+ %end of "think":   
+end
+
+pause(1)
+close all
+
+    

@@ -1,0 +1,5 @@
+function hslider=personality
+close all
+clf
+  hslider = uicontrol('Style','Slider','Units','normalized','Position',[0 0 .3 .5],...
+     'String', 'p');
